@@ -42,6 +42,7 @@ jobs:
                - Causa probable y área afectada (archivo y función)
                - Pasos sugeridos para la solución
                - Información faltante, si la hay
+               El comentario DEBE estar en formato Markdown válido para que GitHub lo renderice correctamente (encabezados, listas, `código`, bloques de código con ```).
                Si ya existe un comentario con `<!-- claude-triage -->` (buscalo con `gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments`), actualízalo con `gh api -X PATCH` en vez de crear otro.
             5. NO modifiques código, NO abras PRs ni commits. Solo labels y el comentario.
           claude_args: |
