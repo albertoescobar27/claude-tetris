@@ -264,6 +264,8 @@ function loop(ts) {
     }
   }
   draw();
+  // endGame() puede ejecutarse dentro de este frame (lockPiece → spawn); no re-agendar
+  if (gameOver) return;
   animId = requestAnimationFrame(loop);
 }
 
