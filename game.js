@@ -156,6 +156,17 @@ function updateHUD() {
   levelEl.textContent = level;
 }
 
+const cssVars = {};
+
+function refreshCssVars() {
+  const style = getComputedStyle(document.documentElement);
+  for (const name of ['--highlight', '--grid']) cssVars[name] = style.getPropertyValue(name).trim();
+}
+
+function cssVar(name) {
+  return cssVars[name];
+}
+
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
   const color = COLORS[colorIndex];
@@ -163,13 +174,13 @@ function drawBlock(context, x, y, colorIndex, size, alpha) {
   context.fillStyle = color;
   context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
   // highlight
-  context.fillStyle = 'rgba(255,255,255,0.12)';
+  context.fillStyle = cssVar('--highlight');
   context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
   context.globalAlpha = 1;
 }
 
 function drawGrid() {
-  ctx.strokeStyle = '#22222e';
+  ctx.strokeStyle = cssVar('--grid');
   ctx.lineWidth = 0.5;
   for (let c = 1; c < COLS; c++) {
     ctx.beginPath();
@@ -300,5 +311,36 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+
+// ---- Tema claro/oscuro (oscuro por defecto) ----
+const themeToggle = document.getElementById('theme-toggle');
+const themeLabel = document.getElementById('theme-label');
+
+function applyTheme(theme) {
+  const light = theme === 'light';
+  if (light) document.documentElement.dataset.theme = 'light';
+  else delete document.documentElement.dataset.theme;
+  themeToggle.setAttribute('aria-checked', String(light));
+  themeLabel.textContent = light ? 'Claro' : 'Oscuro';
+  refreshCssVars();
+  // repintar también en pausa/game over, cuando el loop no corre
+  if (board && current && next) {
+    draw();
+    drawNext();
+  }
+}
+
+function storedTheme() {
+  try { return localStorage.getItem('theme'); } catch { return null; }
+}
+
+themeToggle.addEventListener('click', () => {
+  const theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('theme', theme); } catch {}
+  applyTheme(theme);
+  themeToggle.blur(); // evita que Space/Enter vuelvan a activar el switch
+});
+
+applyTheme(storedTheme() === 'light' ? 'light' : 'dark');
 
 init();
